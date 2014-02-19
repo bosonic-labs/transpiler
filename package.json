@@ -1,0 +1,28 @@
+{
+  "name": "bosonic-transpiler",
+  "version": "0.0.0",
+  "description": "transpiler ==========",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/bosonic/transpiler.git"
+  },
+  "author": "Raphaël Rougeron <goldoraf@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bosonic/transpiler/issues"
+  },
+  "dependencies": {
+    "underscore": "~1.6.0",
+    "cheerio": "~0.13.1",
+    "esprima": "~1.0.4",
+    "escodegen": "~1.2.0",
+    "estraverse": "~1.5.0"
+  },
+  "devDependencies": {
+    "nodeunit": "~0.8.5"
+  }
+}
