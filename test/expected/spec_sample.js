@@ -1,6 +1,5 @@
 (function() {
-    var template = document.currentScript.parentNode.querySelector('template');
-function start() {
+    function start() {
     this.tick();
     this._interval = window.setInterval(this.tick.bind(this), 1000);
 }
@@ -16,7 +15,7 @@ function fmt(n) {
         {
     readyCallback: function () {
         this._root = this.createShadowRoot();
-        this._root.appendChild(template.content.cloneNode());
+        this._root.appendChild(this.template.content.cloneNode());
         if (this.parentElement) {
             start.call(this);
         }
@@ -28,7 +27,8 @@ function fmt(n) {
         this._root.querySelector('hh').textContent = fmt(now.getHours());
         this._root.querySelector('sep').style.visibility = now.getSeconds() % 2 ? 'visible' : 'hidden';
         this._root.querySelector('mm').textContent = fmt(now.getMinutes());
-    }
+    },
+    template: '    <span id="hh"></span>    <span id="sep">:</span>    <span id="mm"></span>  '
 }
     );
 }());
