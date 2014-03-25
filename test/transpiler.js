@@ -3,7 +3,7 @@ var fs = require('fs'),
 
 exports.testSimpleTranspilation = function(test) {
     test.expect(3);
-    var transpiled = transpiler(fs.readFileSync(__dirname + '/fixtures/spec_sample.html', 'utf8')),
+    var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/spec_sample.html', 'utf8')),
         expected = {
             js: fs.readFileSync(__dirname + '/expected/spec_sample.js', 'utf8')
         };
@@ -15,7 +15,7 @@ exports.testSimpleTranspilation = function(test) {
 
 exports.testScriptDependency = function(test) {
     test.expect(1);
-    var transpiled = transpiler(fs.readFileSync(__dirname + '/fixtures/sample_with_deps.html', 'utf8')),
+    var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/sample_with_deps.html', 'utf8')),
         expected = {
             scripts: ["../node_modules/moment/moment.js", "../node_modules/pikaday/pikaday.js"]
         };
@@ -25,10 +25,45 @@ exports.testScriptDependency = function(test) {
 
 exports.testStylesheetDependency = function(test) {
     test.expect(1);
-    var transpiled = transpiler(fs.readFileSync(__dirname + '/fixtures/sample_with_deps.html', 'utf8')),
+    var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/sample_with_deps.html', 'utf8')),
         expected = {
             stylesheets: ["../node_modules/pikaday/css/pikaday.css"]
         };
     test.deepEqual(transpiled.stylesheets, expected.stylesheets, "the stylesheets dependencies should be found");
+    test.done();
+}
+
+exports.testStylesShiming = function(test) {
+    var tests = [
+        [':host {', 'b-dummy {'],
+        [':host{', 'b-dummy {'],
+        [':host  {', 'b-dummy {'],
+        ['  :host  {', '  b-dummy {'],
+        [':host:hover {', 'b-dummy:hover {'],
+        [':host(.cssClass) {', '.cssClass > b-dummy {'],
+        [':host(.cssClass:host) {', 'b-dummy.cssClass {']
+    ];
+    test.expect(tests.length);
+    tests.forEach(function(rule) {
+        test.equal(transpiler.shimStyles(rule[0], 'b-dummy'), rule[1]);
+    });
+    test.done();
+}
+
+exports.testStylesheetShiming = function(test) {
+    var stylesheet = ':host {\
+    display: block;\
+}\
+:host(.active:host) {\
+    color: red;\
+}';
+    var shimmed = 'b-dummy {\
+    display: block;\
+}\
+b-dummy.active {\
+    color: red;\
+}';
+    test.expect(1);
+    test.equal(transpiler.shimStyles(stylesheet, 'b-dummy'), shimmed);
     test.done();
 }
