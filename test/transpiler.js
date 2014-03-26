@@ -41,7 +41,11 @@ exports.testStylesShiming = function(test) {
         [':host:hover', 'b-dummy:hover'],
         [':host(.cssClass)', 'b-dummy.cssClass'],
         [':ancestor(.cssClass)', '.cssClass b-dummy'],
-        [':host-context(.cssClass)', '.cssClass b-dummy']
+        [':host-context(.cssClass)', '.cssClass b-dummy'],
+        ['p', 'b-dummy p'],
+        ['b-dummy', 'b-dummy'],
+        ['b-dummy p', 'b-dummy p'],
+        ['::content p', 'b-dummy p']
     ];
     test.expect(tests.length);
     tests.forEach(function(rule) {
