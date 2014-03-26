@@ -2,12 +2,14 @@ var fs = require('fs'),
     transpiler = require('../');
 
 exports.testSimpleTranspilation = function(test) {
-    test.expect(3);
+    test.expect(4);
     var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/spec_sample.html', 'utf8')),
         expected = {
-            js: fs.readFileSync(__dirname + '/expected/spec_sample.js', 'utf8')
+            js: fs.readFileSync(__dirname + '/expected/spec_sample.js', 'utf8'),
+            css: fs.readFileSync(__dirname + '/expected/spec_sample.css', 'utf8')
         };
     test.equal(transpiled.js, expected.js, "the JS should be transpiled");
+    test.equal(transpiled.css, expected.css, "the CSS should be shimmed");
     test.equal(transpiled.scripts.length, 0);
     test.equal(transpiled.stylesheets.length, 0);
     test.done();
@@ -35,34 +37,22 @@ exports.testStylesheetDependency = function(test) {
 
 exports.testStylesShiming = function(test) {
     var tests = [
-        [':host {', 'b-dummy {'],
-        [':host{', 'b-dummy {'],
-        [':host  {', 'b-dummy {'],
-        ['  :host  {', '  b-dummy {'],
-        [':host:hover {', 'b-dummy:hover {'],
-        [':host(.cssClass) {', '.cssClass > b-dummy {'],
-        [':host(.cssClass:host) {', 'b-dummy.cssClass {']
+        [':host', 'b-dummy'],
+        [':host:hover', 'b-dummy:hover'],
+        [':host(.cssClass)', '.cssClass > b-dummy'],
+        [':host(.cssClass:host)', 'b-dummy.cssClass']
     ];
     test.expect(tests.length);
     tests.forEach(function(rule) {
-        test.equal(transpiler.shimStyles(rule[0], 'b-dummy'), rule[1]);
+        test.equal(transpiler.shimSelector(rule[0], 'b-dummy'), rule[1]);
     });
     test.done();
 }
 
 exports.testStylesheetShiming = function(test) {
-    var stylesheet = ':host {\
-    display: block;\
-}\
-:host(.active:host) {\
-    color: red;\
-}';
-    var shimmed = 'b-dummy {\
-    display: block;\
-}\
-b-dummy.active {\
-    color: red;\
-}';
+    var stylesheet = fs.readFileSync(__dirname + '/fixtures/shadowCSS_sample.css', 'utf8'),
+        shimmed = fs.readFileSync(__dirname + '/expected/shimed_shadowCSS_sample.css', 'utf8');
+    
     test.expect(1);
     test.equal(transpiler.shimStyles(stylesheet, 'b-dummy'), shimmed);
     test.done();

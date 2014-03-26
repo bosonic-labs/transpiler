@@ -1,0 +1,7 @@
+b-dummy {
+  display: block;
+}
+
+b-dummy.active {
+  color: red;
+}
