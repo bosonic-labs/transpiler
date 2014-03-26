@@ -39,6 +39,7 @@ exports.testStylesShiming = function(test) {
     var tests = [
         [':host', 'b-dummy'],
         [':host:hover', 'b-dummy:hover'],
+        [':host[visible]', 'b-dummy[visible]'],
         [':host(.cssClass)', 'b-dummy.cssClass'],
         [':ancestor(.cssClass)', '.cssClass b-dummy'],
         [':host-context(.cssClass)', '.cssClass b-dummy'],
