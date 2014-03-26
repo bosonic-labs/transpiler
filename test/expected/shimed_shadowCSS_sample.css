@@ -2,6 +2,10 @@ b-dummy {
   display: block;
 }
 
+b-dummy:hover {
+  color: blue;
+}
+
 b-dummy.active {
   color: red;
 }

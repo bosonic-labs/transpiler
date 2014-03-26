@@ -2,6 +2,10 @@
   display: block;
 }
 
-:host(.active:host) {
+:host:hover {
+  color: blue;
+}
+
+:host(.active) {
   color: red;
 }
