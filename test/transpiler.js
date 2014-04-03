@@ -1,19 +1,20 @@
 var fs = require('fs'),
-    transpiler = require('../');
+    transpiler = require('../'),
+    sweet = require('sweet.js');
 
-exports.testSimpleTranspilation = function(test) {
-    test.expect(4);
-    var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/spec_sample.html', 'utf8')),
-        expected = {
-            js: fs.readFileSync(__dirname + '/expected/spec_sample.js', 'utf8'),
-            css: fs.readFileSync(__dirname + '/expected/spec_sample.css', 'utf8')
-        };
-    test.equal(transpiled.js, expected.js, "the JS should be transpiled");
-    test.equal(transpiled.css, expected.css, "the CSS should be shimmed");
-    test.equal(transpiled.scripts.length, 0);
-    test.equal(transpiled.stylesheets.length, 0);
-    test.done();
-}
+// exports.testSimpleTranspilation = function(test) {
+//     test.expect(4);
+//     var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/spec_sample.html', 'utf8')),
+//         expected = {
+//             js: fs.readFileSync(__dirname + '/expected/spec_sample.js', 'utf8'),
+//             css: fs.readFileSync(__dirname + '/expected/spec_sample.css', 'utf8')
+//         };
+//     test.equal(transpiled.js, expected.js, "the JS should be transpiled");
+//     test.equal(transpiled.css, expected.css, "the CSS should be shimmed");
+//     test.equal(transpiled.scripts.length, 0);
+//     test.equal(transpiled.stylesheets.length, 0);
+//     test.done();
+// }
 
 exports.testScriptDependency = function(test) {
     test.expect(1);
@@ -61,5 +62,24 @@ exports.testStylesheetShiming = function(test) {
     
     test.expect(1);
     test.equal(transpiler.shimStyles(stylesheet, 'b-dummy'), shimmed);
+    test.done();
+}
+
+exports.testPreCompile = function(test) {
+    test.expect(1);
+    var script = fs.readFileSync(__dirname + '/fixtures/spec_sample_script.js', 'utf8'),
+        code = transpiler.preCompile('b-test', script, '<div><content></content></div>'),
+        expected = fs.readFileSync(__dirname + '/expected/precompiled_spec_sample_script.js', 'utf8');
+    //console.log(code);
+    test.equal(code, expected);
+    test.done();
+}
+
+exports.testCompile = function(test) {
+    test.expect(1);
+    var code = transpiler.compile(fs.readFileSync(__dirname + '/expected/precompiled_spec_sample_script.js', 'utf8')),
+        expected = fs.readFileSync(__dirname + '/expected/compiled_spec_sample_script.js', 'utf8');
+    //console.log(code);
+    test.equal(code, expected);
     test.done();
 }
