@@ -2,19 +2,19 @@ var fs = require('fs'),
     transpiler = require('../'),
     sweet = require('sweet.js');
 
-// exports.testSimpleTranspilation = function(test) {
-//     test.expect(4);
-//     var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/spec_sample.html', 'utf8')),
-//         expected = {
-//             js: fs.readFileSync(__dirname + '/expected/spec_sample.js', 'utf8'),
-//             css: fs.readFileSync(__dirname + '/expected/spec_sample.css', 'utf8')
-//         };
-//     test.equal(transpiled.js, expected.js, "the JS should be transpiled");
-//     test.equal(transpiled.css, expected.css, "the CSS should be shimmed");
-//     test.equal(transpiled.scripts.length, 0);
-//     test.equal(transpiled.stylesheets.length, 0);
-//     test.done();
-// }
+exports.testSimpleTranspilation = function(test) {
+    test.expect(4);
+    var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/spec_sample.html', 'utf8')),
+        expected = {
+            js: fs.readFileSync(__dirname + '/expected/spec_sample.js', 'utf8'),
+            css: fs.readFileSync(__dirname + '/expected/spec_sample.css', 'utf8')
+        };
+    test.equal(transpiled.js, expected.js, "the JS should be transpiled");
+    test.equal(transpiled.css, expected.css, "the CSS should be shimmed");
+    test.equal(transpiled.scripts.length, 0);
+    test.equal(transpiled.stylesheets.length, 0);
+    test.done();
+}
 
 exports.testScriptDependency = function(test) {
     test.expect(1);

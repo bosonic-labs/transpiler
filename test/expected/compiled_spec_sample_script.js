@@ -31,7 +31,7 @@ var BTestPrototype = Object.create(HTMLElement.prototype, {
             }
         }
     });
-var BTest = document.registerElement('b-test', { prototype: BTestPrototype });
+window.BTest = document.registerElement('b-test', { prototype: BTestPrototype });
 Object.defineProperty(BTestPrototype, 'template', {
     get: function () {
         var fragment = document.createDocumentFragment();

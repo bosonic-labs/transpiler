@@ -9,22 +9,40 @@
     function fmt(n) {
         return (n < 10 ? '0' : '') + n;
     }
-    Bosonic.registerElement('tick-tock-clock', {
-        readyCallback: function () {
-            this._root = this.createShadowRoot();
-            this._root.appendChild(this.template.content.cloneNode());
-            if (this.parentElement) {
-                start.call(this);
+    var TickTockClockPrototype = Object.create(HTMLElement.prototype, {
+            readyCallback: {
+                enumerable: true,
+                value: function () {
+                    this._root = this.createShadowRoot();
+                    this._root.appendChild(this.template.content.cloneNode());
+                    if (this.parentElement) {
+                        start.call(this);
+                    }
+                }
+            },
+            insertedCallback: { value: start },
+            removedCallback: { value: stop },
+            tick: {
+                enumerable: true,
+                value: function () {
+                    var now = new Date();
+                    this._root.querySelector('hh').textContent = fmt(now.getHours());
+                    this._root.querySelector('sep').style.visibility = now.getSeconds() % 2 ? 'visible' : 'hidden';
+                    this._root.querySelector('mm').textContent = fmt(now.getMinutes());
+                }
             }
-        },
-        insertedCallback: start,
-        removedCallback: stop,
-        tick: function () {
-            var now = new Date();
-            this._root.querySelector('hh').textContent = fmt(now.getHours());
-            this._root.querySelector('sep').style.visibility = now.getSeconds() % 2 ? 'visible' : 'hidden';
-            this._root.querySelector('mm').textContent = fmt(now.getMinutes());
-        },
-        template: ' <span id="hh"></span> <span id="sep">:</span> <span id="mm"></span> '
+        });
+    window.TickTockClock = document.registerElement('tick-tock-clock', { prototype: TickTockClockPrototype });
+    Object.defineProperty(TickTockClockPrototype, 'template', {
+        get: function () {
+            var fragment = document.createDocumentFragment();
+            var div = fragment.appendChild(document.createElement('div'));
+            div.innerHTML = ' <span id="hh"></span> <span id="sep">:</span> <span id="mm"></span> ';
+            while (child = div.firstChild) {
+                fragment.insertBefore(child, div);
+            }
+            fragment.removeChild(div);
+            return { content: fragment };
+        }
     });
 }());
