@@ -16,6 +16,14 @@ exports.testSimpleTranspilation = function(test) {
     test.done();
 }
 
+exports.testExtendsTranspilation = function(test) {
+    test.expect(1);
+    var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/extended_spec_sample.html', 'utf8')),
+        expected = fs.readFileSync(__dirname + '/expected/extended_spec_sample.js', 'utf8');
+    test.equal(transpiled.js, expected, "the JS should be transpiled");
+    test.done();
+}
+
 exports.testScriptDependency = function(test) {
     test.expect(1);
     var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/sample_with_deps.html', 'utf8')),

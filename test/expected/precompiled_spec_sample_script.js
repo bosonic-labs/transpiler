@@ -8,7 +8,7 @@ function stop() {
 function fmt(n) {
     return (n < 10 ? '0' : '') + n;
 }
-def__element "b-test" {
+def__element 'b-test' {
     readyCallback: function () {
         this._root = this.createShadowRoot();
         this._root.appendChild(this.template.content.cloneNode());

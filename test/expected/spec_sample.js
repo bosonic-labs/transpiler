@@ -33,6 +33,12 @@
             }
         });
     window.TickTockClock = document.registerElement('tick-tock-clock', { prototype: TickTockClockPrototype });
+    Object.defineProperty(TickTockClock.prototype, '_super', {
+        enumerable: false,
+        writable: false,
+        configurable: false,
+        value: HTMLElement.prototype
+    });
     Object.defineProperty(TickTockClockPrototype, 'template', {
         get: function () {
             var fragment = document.createDocumentFragment();
