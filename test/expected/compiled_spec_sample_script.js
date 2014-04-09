@@ -32,12 +32,6 @@ var BTestPrototype = Object.create(HTMLElement.prototype, {
         }
     });
 window.BTest = document.registerElement('b-test', { prototype: BTestPrototype });
-Object.defineProperty(BTest.prototype, '_super', {
-    enumerable: false,
-    writable: false,
-    configurable: false,
-    value: HTMLElement.prototype
-});
 Object.defineProperty(BTestPrototype, 'template', {
     get: function () {
         var fragment = document.createDocumentFragment();

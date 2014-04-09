@@ -24,6 +24,14 @@ exports.testExtendsTranspilation = function(test) {
     test.done();
 }
 
+exports.testExtendsNativeElementTranspilation = function(test) {
+    test.expect(1);
+    var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/extended_native_element.html', 'utf8')),
+        expected = fs.readFileSync(__dirname + '/expected/extended_native_element.js', 'utf8');
+    test.equal(transpiled.js, expected, "the JS should be transpiled");
+    test.done();
+}
+
 exports.testScriptDependency = function(test) {
     test.expect(1);
     var transpiled = transpiler.transpile(fs.readFileSync(__dirname + '/fixtures/sample_with_deps.html', 'utf8')),
