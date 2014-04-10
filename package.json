@@ -1,6 +1,6 @@
 {
   "name": "bosonic-transpiler",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "A node.js library that transpiles to-the-spec Web Components into polyfilled JavaScript",
   "main": "index.js",
   "scripts": {
