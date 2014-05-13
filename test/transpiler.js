@@ -94,7 +94,6 @@ exports.testPreCompile = function(test) {
     var script = fs.readFileSync(__dirname + '/fixtures/spec_sample_script.js', 'utf8'),
         code = transpiler.preCompile('b-test', script, '<div><content></content></div>'),
         expected = fs.readFileSync(__dirname + '/expected/precompiled_spec_sample_script.js', 'utf8');
-    //console.log(code);
     test.equal(code, expected);
     test.done();
 }
@@ -103,7 +102,14 @@ exports.testCompile = function(test) {
     test.expect(1);
     var code = transpiler.compile(fs.readFileSync(__dirname + '/expected/precompiled_spec_sample_script.js', 'utf8')),
         expected = fs.readFileSync(__dirname + '/expected/compiled_spec_sample_script.js', 'utf8');
-    //console.log(code);
+    test.equal(code, expected);
+    test.done();
+}
+
+exports.testGetterSetterBug = function(test) {
+    test.expect(1);
+    var code = transpiler.compile(fs.readFileSync(__dirname + '/fixtures/getter_setter_bug.js', 'utf8')),
+        expected = fs.readFileSync(__dirname + '/expected/getter_setter_bug.js', 'utf8');
     test.equal(code, expected);
     test.done();
 }
