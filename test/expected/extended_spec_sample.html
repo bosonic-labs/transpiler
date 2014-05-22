@@ -1,5 +1,8 @@
+<element name="super-tick-tock-clock" extends="tick-tock-clock">
+  <script>
 (function () {
-    var SuperTickTockClockPrototype = Object.create(TickTockClock.prototype, {
+    window.SuperTickTockClock = document.registerElement('super-tick-tock-clock', {
+        prototype: Object.create(TickTockClock.prototype, {
             tick: {
                 enumerable: true,
                 value: function () {
@@ -7,8 +10,9 @@
                     console.log('tick');
                 }
             }
-        });
-    window.SuperTickTockClock = document.registerElement('super-tick-tock-clock', { prototype: SuperTickTockClockPrototype });
+        }),
+        extends: 'tick-tock-clock'
+    });
     Object.defineProperty(SuperTickTockClock.prototype, '_super', {
         enumerable: false,
         writable: false,
@@ -16,3 +20,5 @@
         value: TickTockClock.prototype
     });
 }());
+</script>
+</element>

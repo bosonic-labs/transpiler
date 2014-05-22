@@ -9,7 +9,8 @@
     function fmt(n) {
         return (n < 10 ? '0' : '') + n;
     }
-    var TickTockClockPrototype = Object.create(HTMLElement.prototype, {
+    window.BTest = document.registerElement('b-test', {
+        prototype: Object.create(HTMLElement.prototype, {
             readyCallback: {
                 enumerable: true,
                 value: function () {
@@ -20,8 +21,14 @@
                     }
                 }
             },
-            insertedCallback: { value: start },
-            removedCallback: { value: stop },
+            insertedCallback: {
+                enumerable: true,
+                value: start
+            },
+            removedCallback: {
+                enumerable: true,
+                value: stop
+            },
             tick: {
                 enumerable: true,
                 value: function () {
@@ -31,18 +38,6 @@
                     this._root.querySelector('mm').textContent = fmt(now.getMinutes());
                 }
             }
-        });
-    window.TickTockClock = document.registerElement('tick-tock-clock', { prototype: TickTockClockPrototype });
-    Object.defineProperty(TickTockClockPrototype, 'template', {
-        get: function () {
-            var fragment = document.createDocumentFragment();
-            var div = fragment.appendChild(document.createElement('div'));
-            div.innerHTML = ' <span id="hh"></span> <span id="sep">:</span> <span id="mm"></span> ';
-            while (child = div.firstChild) {
-                fragment.insertBefore(child, div);
-            }
-            fragment.removeChild(div);
-            return { content: fragment };
-        }
+        })
     });
 }());
