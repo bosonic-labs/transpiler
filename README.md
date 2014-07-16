@@ -14,7 +14,7 @@ In lieu of a formal styleguide, take care to maintain the existing coding style.
 ### Running tests
 
 ```shell
-nodeunit test/transpiler.js
+npm test
 ```
 
 ### Release History

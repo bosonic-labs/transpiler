@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>React tests</title>
+    <meta charset="utf-8">
+    <script src="http://fb.me/react-0.10.0.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.10.0.js"></script>
+    <script type="text/jsx" src="expected/simplified_spec_sample.jsx"></script>
+</head>
+<body>
+    <h2>Spec Sample</h2>
+    <div id="sample1"></div>
+    <h2>Extended Spec Sample</h2>
+    <div id="sample2"></div>
+    <script type="text/jsx">
+       /** @jsx React.DOM */
+       React.renderComponent(
+        <TickTockClock />,
+        document.getElementById('sample1')
+       );
+       /*React.renderComponent(
+        <SuperTickTockClock />,
+        document.getElementById('sample2')
+       );*/
+    </script>
+</body>

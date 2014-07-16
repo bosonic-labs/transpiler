@@ -4,7 +4,7 @@
   "description": "A node.js library that transpiles to-the-spec Web Components into polyfilled JavaScript",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/mocha/bin/mocha --reporter list"
   },
   "repository": {
     "type": "git",
@@ -20,11 +20,15 @@
     "esprima": "~1.0.4",
     "escodegen": "~1.2.0",
     "css": "^1.6.0",
-    "sweet.js": "^0.5.0",
     "jstransform": "^4.0.1",
     "esprima-fb": "^3001.1.0-dev-harmony-fb"
   },
   "devDependencies": {
-    "nodeunit": "~0.8.5"
+    "nodeunit": "~0.8.5",
+    "grunt": "^0.4.5",
+    "grunt-contrib-connect": "^0.7.1",
+    "envify": "^1.2.1",
+    "chai": "^1.9.1",
+    "mocha": "^1.20.1"
   }
 }

@@ -1,4 +1,9 @@
 <element name="super-tick-tock-clock" extends="tick-tock-clock">
+  <style>
+super-tick-tock-clock {
+  border: 1px solid #000;
+}
+</style>
   <script>
 (function () {
     window.SuperTickTockClock = document.registerElement('super-tick-tock-clock', {
@@ -6,18 +11,12 @@
             tick: {
                 enumerable: true,
                 value: function () {
-                    this._super.tick.call(this);
-                    console.log('tick');
+                    TickTockClock.prototype.tick.call(this);
+                    var now = new Date();
+                    this.style.borderColor = now.getSeconds() % 2 ? '#ccc' : 'red';
                 }
             }
-        }),
-        extends: 'tick-tock-clock'
-    });
-    Object.defineProperty(SuperTickTockClock.prototype, '_super', {
-        enumerable: false,
-        writable: false,
-        configurable: false,
-        value: TickTockClock.prototype
+        })
     });
 }());
 </script>
