@@ -3,7 +3,11 @@ var expect = require('chai').expect,
 
 function transpile(code, element, extendee) {
     element = element || 'tick-tock-clock';
-    return transpileScript(code, element, extendee, { automaticTemplating: true });
+    return transpileScript(code, { 
+        name: element,
+        extendee: extendee,
+        automaticTemplating: true
+    });
 }
 
 describe('empty component transpilation', function() {
@@ -22,7 +26,7 @@ describe('empty component transpilation', function() {
             'window.TickTockClock = document.registerElement(\'tick-tock-clock\', { prototype : Object.create(HTMLElement.prototype, {',
             '})});'
         ].join('\n');
-        expect(transpileScript(code, 'tick-tock-clock')).to.equal(expected);
+        expect(transpileScript(code, { name: 'tick-tock-clock' })).to.equal(expected);
     });
 
     it('should preserve external code', function() {
@@ -30,7 +34,7 @@ describe('empty component transpilation', function() {
             'window.TickTockClock = document.registerElement(\'tick-tock-clock\', { prototype : Object.create(HTMLElement.prototype, {',
             '})});'
         ].join('\n');
-        expect(transpileScript(external + '\n' + code, 'tick-tock-clock')).to.equal(expected);
+        expect(transpileScript(external + '\n' + code, { name: 'tick-tock-clock' })).to.equal(expected);
     });
 });
 
@@ -99,7 +103,7 @@ describe('methods transpilation', function() {
             '  } }',
             '})});'
         ].join('\n');
-        expect(transpileScript(code, 'tick-tock-clock')).to.equal(expected);
+        expect(transpileScript(code, { name: 'tick-tock-clock' })).to.equal(expected);
     });
 });
 
@@ -120,7 +124,7 @@ describe('getters and setters', function() {
             '  } }',
             '})});'
         ].join('\n');
-        expect(transpileScript(code, 'tick-tock-clock')).to.equal(expected);
+        expect(transpileScript(code, { name: 'tick-tock-clock' })).to.equal(expected);
     });
 
     it('should expand a single setter', function() {
@@ -138,7 +142,7 @@ describe('getters and setters', function() {
             '  } }',
             '})});'
         ].join('\n');
-        expect(transpileScript(code, 'tick-tock-clock')).to.equal(expected);
+        expect(transpileScript(code, { name: 'tick-tock-clock' })).to.equal(expected);
     });
 
     it('should expand a getter/setter', function() {
@@ -161,7 +165,7 @@ describe('getters and setters', function() {
             '  } }',
             '})});'
         ].join('\n');
-        expect(transpileScript(code, 'tick-tock-clock')).to.equal(expected);
+        expect(transpileScript(code, { name: 'tick-tock-clock' })).to.equal(expected);
     });
 
     it('should expand a setter/getter', function() {
@@ -184,7 +188,7 @@ describe('getters and setters', function() {
             '  } }',
             '})});'
         ].join('\n');
-        expect(transpileScript(code, 'tick-tock-clock')).to.equal(expected);
+        expect(transpileScript(code, { name: 'tick-tock-clock' })).to.equal(expected);
     });
 });
 
@@ -205,6 +209,46 @@ describe('super shortcut & extends', function() {
             '  } }',
             '})});'
         ].join('\n');
-        expect(transpileScript(code, 'super-tick-tock-clock', 'tick-tock-clock')).to.equal(expected);
+        expect(transpileScript(code, { extendee: 'tick-tock-clock', name: 'super-tick-tock-clock' })).to.equal(expected);
+    });
+});
+
+describe('declared attributes', function() {
+    it('should add a attributeChangedCallback when there is not one', function() {
+        var code = [
+            '({',
+            '})'
+        ].join('\n'),
+            expected = [
+            'window.TickTockClock = document.registerElement(\'tick-tock-clock\', { prototype : Object.create(HTMLElement.prototype, {',
+            '  attributeChangedCallback: { enumerable: true, value: function(name, oldValue, newValue) {',
+            '    if ([\'foo\'].indexOf(name) !== -1) {',
+            '      this[name + \'Changed\'].call(this, oldValue, newValue);',
+            '    }',
+            '  } }',
+            '})});'
+        ].join('\n');
+        expect(transpileScript(code, { name: 'tick-tock-clock', attributes: ['foo'] })).to.equal(expected);
+    });
+
+    it('should inject code into an existing attributeChangedCallback method', function() {
+        var code = [
+            '({',
+            '  attributeChangedCallback: function(name, oldValue, newValue) {',
+            '    console.log(bar);',
+            '  }',
+            '})'
+        ].join('\n'),
+            expected = [
+            'window.TickTockClock = document.registerElement(\'tick-tock-clock\', { prototype : Object.create(HTMLElement.prototype, {',
+            '  attributeChangedCallback: { enumerable: true, value: function(name, oldValue, newValue) {',
+            '    if ([\'foo\', \'bar\'].indexOf(name) !== -1) {',
+            '      this[name + \'Changed\'].call(this, oldValue, newValue);',
+            '    }',
+            '    console.log(bar);',
+            '  } }',
+            '})});'
+        ].join('\n');
+        expect(transpileScript(code, { name: 'tick-tock-clock', attributes: ['foo', 'bar'] })).to.equal(expected);
     });
 });

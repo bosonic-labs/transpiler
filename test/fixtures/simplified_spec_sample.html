@@ -27,8 +27,8 @@
           start.call(this);
         }
       },
-      insertedCallback: start,
-      removedCallback: stop,
+      attachedCallback: start,
+      detachedCallback: stop,
       tick: function () {
         var now = new Date();
         this.shadowRoot.querySelector('#hh').textContent = fmt(now.getHours());

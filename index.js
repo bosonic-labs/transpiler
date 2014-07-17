@@ -17,6 +17,7 @@ function getElementFacets($) {
         scripts = $('script'),
         stylesheets = $('link[rel=stylesheet]'),
         elementName = element.attr('name'),
+        attributes = element.attr('attributes') ? element.attr('attributes').split(' ') : null,
         extendee = element.attr('extends');
 
     scripts.each(function(i, script) {
@@ -36,6 +37,7 @@ function getElementFacets($) {
     
     return {
         name: elementName,
+        attributes: attributes,
         extendee: extendee,
         script: mainScript,
         style: style,
@@ -73,10 +75,14 @@ function transpile(htmlString, options) {
     }
 
     if (element.script.html() !== null) {
+        options.name = element.name;
+        options.attributes = element.attributes;
+        options.extendee = element.extendee;
+
         if (!element.template) {
             options.automaticTemplating = false;
         }
-        var transpiled = transpileScript(element.script.html(), element.name, element.extendee, options);
+        var transpiled = transpileScript(element.script.html(), options);
         element.script.html("\n"+reindentScript(transpiled)+"\n");
     }
     

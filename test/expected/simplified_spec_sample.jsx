@@ -13,7 +13,7 @@
 
     var TickTockClock = React.createClass({
   render: function() {
-    return (
+    return this.transferPropsTo(
       <div className="tick-tock-clock">
         
     <span id="hh"></span>
@@ -23,7 +23,7 @@
       </div>
     );
   },
-      createdCallback: function() {
+      componentWillMount: function() {
         if (this.parentElement) {
           start.call(this);
         }

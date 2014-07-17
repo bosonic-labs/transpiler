@@ -4,7 +4,7 @@ var expect = require('chai').expect,
 var template = '<span id="hh"></span><span id="sep">:</span><span id="mm"></span>',
     renderMethod = [
         '  render: function() {',
-        '    return (',
+        '    return this.transferPropsTo(',
         '      <div className="tick-tock-clock">',
         '        ' + template,
         '      </div>',
@@ -31,14 +31,16 @@ describe('Component transpilation', function() {
     it('should rename WCs callbacks to React ones', function() {
         var code = [
                 '({',
-                '  insertedCallback: start,',
-                '  removedCallback: stop',
+                '  createdCallback: foo,',
+                '  attachedCallback: start,',
+                '  detachedCallback: stop',
                 '})'
             ].join('\n'),
             expected = [
                 '/** @jsx React.DOM */',
                 'var TickTockClock = React.createClass({',
                    renderMethod + ',',
+                '  componentWillMount: foo,',
                 '  componentDidMount: start,',
                 '  componentDidUnmount: stop',
                 '});'
@@ -85,4 +87,60 @@ describe('Component transpilation', function() {
             ].join('\n');
         expect(transpileToReactComponent(code, 'tick-tock-clock', null, template)).to.equal(expected);
     });
+});
+
+describe('getters and setters', function() {
+
+    it('should convert a getter into a method & rewrite property calls', function() {
+        var code = [
+            '({',
+            '  get height() {',
+            '    return this.style.height;',
+            '  },',
+            '  foo: function() {',
+            '    console.log(this.height);',
+            '  }',
+            '})'
+        ].join('\n'),
+            expected = [
+            '/** @jsx React.DOM */',
+            'var TickTockClock = React.createClass({',
+               renderMethod + ',',
+            '  getHeight: function() {',
+            '    return this.style.height;',
+            '  },',
+            '  foo: function() {',
+            '    console.log(this.getHeight());',
+            '  }',
+            '});'
+        ].join('\n');
+        expect(transpileToReactComponent(code, 'tick-tock-clock', null, template)).to.equal(expected);
+    });
+
+    it('should convert a setter into a method', function() {
+        var code = [
+            '({',
+            '  set height(value) {',
+            '    this.style.height = value;',
+            '  },',
+            '  foo: function() {',
+            '    this.height = 40;',
+            '  }',
+            '})'
+        ].join('\n'),
+            expected = [
+            '/** @jsx React.DOM */',
+            'var TickTockClock = React.createClass({',
+               renderMethod + ',',
+            '  setHeight: function(value) {',
+            '    this.style.height = value;',
+            '  },',
+            '  foo: function() {',
+            '    this.setHeight(40);',
+            '  }',
+            '});'
+        ].join('\n');
+        expect(transpileToReactComponent(code, 'tick-tock-clock', null, template)).to.equal(expected);
+    });
+
 });
