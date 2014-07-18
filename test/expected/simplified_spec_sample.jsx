@@ -12,6 +12,7 @@
     }
 
     var TickTockClock = React.createClass({
+  mixins: [BosonicMixin],
   render: function() {
     return this.transferPropsTo(
       <div className="tick-tock-clock">

@@ -1,6 +1,7 @@
 var expect = require('chai').expect,
     transpileToReactComponent = require('../lib/react-transpiler').transpileToReactComponent;
 
+
 var template = '<span id="hh"></span><span id="sep">:</span><span id="mm"></span>',
     renderMethod = [
         '  render: function() {',
@@ -12,9 +13,21 @@ var template = '<span id="hh"></span><span id="sep">:</span><span id="mm"></span
         '  }'
     ].join('\n');
 
+var transpile = function(code, options) {
+    var opts = {
+        name: 'tick-tock-clock',
+        extendee: null,
+        template: template
+    };
+    options = options || {};
+    if (options.attributes) opts.attributes = options.attributes;
+
+    return transpileToReactComponent(code, opts);
+}
+
 describe('Component transpilation', function() {
     
-    it('should add a render method', function() {
+    it('should add a render method and a mixin', function() {
         var code = [
                 '({',
                 '})'
@@ -22,10 +35,11 @@ describe('Component transpilation', function() {
             expected = [
                 '/** @jsx React.DOM */',
                 'var TickTockClock = React.createClass({',
-                    renderMethod,
+                '  mixins: [BosonicMixin],',
+                   renderMethod,
                 '});'
             ].join('\n');
-        expect(transpileToReactComponent(code, 'tick-tock-clock', null, template)).to.equal(expected);
+        expect(transpile(code)).to.equal(expected);
     });
 
     it('should rename WCs callbacks to React ones', function() {
@@ -39,13 +53,14 @@ describe('Component transpilation', function() {
             expected = [
                 '/** @jsx React.DOM */',
                 'var TickTockClock = React.createClass({',
+                '  mixins: [BosonicMixin],',
                    renderMethod + ',',
                 '  componentWillMount: foo,',
                 '  componentDidMount: start,',
                 '  componentDidUnmount: stop',
                 '});'
             ].join('\n');
-        expect(transpileToReactComponent(code, 'tick-tock-clock', null, template)).to.equal(expected);
+        expect(transpile(code)).to.equal(expected);
     });
 
     it('should proxify DOM methods to this.getDOMNode()', function() {
@@ -59,13 +74,14 @@ describe('Component transpilation', function() {
             expected = [
                 '/** @jsx React.DOM */',
                 'var TickTockClock = React.createClass({',
+                '  mixins: [BosonicMixin],',
                    renderMethod + ',',
                 '  foo: function() {',
                 '    this.getDOMNode().querySelector("#foo").textContent = "bar";',
                 '  }',
                 '});'
             ].join('\n');
-        expect(transpileToReactComponent(code, 'tick-tock-clock', null, template)).to.equal(expected);
+        expect(transpile(code)).to.equal(expected);
     });
 
     it('should route shadowRoot calls to this.getDOMNode()', function() {
@@ -79,13 +95,14 @@ describe('Component transpilation', function() {
             expected = [
                 '/** @jsx React.DOM */',
                 'var TickTockClock = React.createClass({',
+                '  mixins: [BosonicMixin],',
                    renderMethod + ',',
                 '  foo: function() {',
                 '    this.getDOMNode().querySelector("#foo").textContent = "bar";',
                 '  }',
                 '});'
             ].join('\n');
-        expect(transpileToReactComponent(code, 'tick-tock-clock', null, template)).to.equal(expected);
+        expect(transpile(code)).to.equal(expected);
     });
 });
 
@@ -105,6 +122,7 @@ describe('getters and setters', function() {
             expected = [
             '/** @jsx React.DOM */',
             'var TickTockClock = React.createClass({',
+            '  mixins: [BosonicMixin],',
                renderMethod + ',',
             '  getHeight: function() {',
             '    return this.style.height;',
@@ -114,7 +132,7 @@ describe('getters and setters', function() {
             '  }',
             '});'
         ].join('\n');
-        expect(transpileToReactComponent(code, 'tick-tock-clock', null, template)).to.equal(expected);
+        expect(transpile(code)).to.equal(expected);
     });
 
     it('should convert a setter into a method', function() {
@@ -131,6 +149,7 @@ describe('getters and setters', function() {
             expected = [
             '/** @jsx React.DOM */',
             'var TickTockClock = React.createClass({',
+            '  mixins: [BosonicMixin],',
                renderMethod + ',',
             '  setHeight: function(value) {',
             '    this.style.height = value;',
@@ -140,7 +159,25 @@ describe('getters and setters', function() {
             '  }',
             '});'
         ].join('\n');
-        expect(transpileToReactComponent(code, 'tick-tock-clock', null, template)).to.equal(expected);
+        expect(transpile(code)).to.equal(expected);
     });
 
+});
+
+describe('declared attributes', function() {
+    it('should add a special __attributes__ property', function() {
+        var code = [
+                '({',
+                '})'
+            ].join('\n'),
+            expected = [
+                '/** @jsx React.DOM */',
+                'var TickTockClock = React.createClass({',
+                '  __attributes__: [\'foo\'],',
+                '  mixins: [BosonicMixin],',
+                   renderMethod,
+                '});'
+            ].join('\n');
+        expect(transpile(code, { attributes: ['foo'] })).to.equal(expected);
+    });
 });

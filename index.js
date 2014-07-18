@@ -49,10 +49,16 @@ function getElementFacets($) {
     };
 }
 
-function transpileToReact(htmlString) {
+function transpileToReact(htmlString, options) {
     var css = '',
         $ = cheerio.load(htmlString),
         element = getElementFacets($);
+
+    options = options || {};
+    options.name = element.name;
+    options.attributes = element.attributes;
+    options.extendee = element.extendee;
+    options.template = element.template;
 
     if (element.style.html() !== null) {
         css = shimReactStyles(element.style.html(), element.name);
@@ -60,7 +66,7 @@ function transpileToReact(htmlString) {
 
     return {
         css: css,
-        jsx: transpileToReactComponent(element.script.html(), element.name, element.extendee, element.template)
+        jsx: transpileToReactComponent(element.script.html(), options)
     };
 }
 
