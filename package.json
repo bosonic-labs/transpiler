@@ -16,12 +16,14 @@
     "url": "https://github.com/bosonic/transpiler/issues"
   },
   "dependencies": {
-    "cheerio": "~0.13.1",
+    "cheerio": "~0.17.0",
     "esprima": "~1.0.4",
     "escodegen": "~1.2.0",
     "css": "^1.6.0",
     "jstransform": "^4.0.1",
-    "esprima-fb": "^3001.1.0-dev-harmony-fb"
+    "esprima-fb": "^3001.1.0-dev-harmony-fb",
+    "react": "^0.11.1",
+    "react-tools": "^0.11.1"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

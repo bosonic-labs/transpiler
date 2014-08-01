@@ -13,7 +13,7 @@ function getElementFacets($) {
         cssDeps = [],
         element = $('element'),
         template = $('template').html(),
-        style = $('style'),
+        style = $('element style'),
         scripts = $('script'),
         stylesheets = $('link[rel=stylesheet]'),
         elementName = element.attr('name'),
@@ -50,8 +50,10 @@ function getElementFacets($) {
 }
 
 function transpileToReact(htmlString, options) {
-    var css = '',
-        $ = cheerio.load(htmlString),
+    var css = [],
+        $ = cheerio.load(htmlString, {
+    xmlMode: true
+}),
         element = getElementFacets($);
 
     options = options || {};
@@ -60,12 +62,16 @@ function transpileToReact(htmlString, options) {
     options.extendee = element.extendee;
     options.template = element.template;
 
-    if (element.style.html() !== null) {
-        css = shimReactStyles(element.style.html(), element.name);
-    }
+    $('style').each(function(i, style) {
+        if ($(this).parent('element').length !== 0) {
+            css.push(shimReactStyles($(this).html(), element.name));
+        } else {
+            css.push($(this).html());
+        }
+    });
 
     return {
-        css: css,
+        css: css.join('\n'),
         jsx: transpileToReactComponent(element.script.html(), options)
     };
 }

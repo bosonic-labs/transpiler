@@ -17,9 +17,9 @@
     return this.transferPropsTo(
       <div className="tick-tock-clock">
         
-    <span id="hh"></span>
+    <span id="hh"/>
     <span id="sep">:</span>
-    <span id="mm"></span>
+    <span id="mm"/>
   
       </div>
     );

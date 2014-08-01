@@ -181,3 +181,26 @@ describe('declared attributes', function() {
         expect(transpile(code, { attributes: ['foo'] })).to.equal(expected);
     });
 });
+
+// describe('document.createElement() call', function() {
+//     it('should be replaced when necessary', function() {
+//         var code = [
+//                 '({',
+//                 '  foo: function() {',
+//                 '    var clock = document.createElement(\'tick-tock-clock\');',
+//                 '  }',
+//                 '})'
+//             ].join('\n'),
+//             expected = [
+//                 '/** @jsx React.DOM */',
+//                 'var TickTockClock = React.createClass({',
+//                 '  mixins: [BosonicMixin],',
+//                    renderMethod,
+//                 '  foo: function() {',
+//                 '    var clock = React.renderComponent(<TickTockClock/>, this.getDOMNode());',
+//                 '  }',
+//                 '});'
+//             ].join('\n');
+//         expect(transpile(code)).to.equal(expected);
+//     });
+// });
