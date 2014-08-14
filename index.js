@@ -81,24 +81,52 @@ function transpile(htmlString, options) {
         element = getElementFacets($);
 
     options = options || {};
+    options.name = element.name;
+    options.attributes = element.attributes;
+    options.extendee = element.extendee;
+    options.template = element.template;
 
+    if (!element.template) {
+        options.automaticTemplating = false;
+    }
+
+    return {
+        js: transpileToJS(element, $, options),
+        css: transpileToCSS(element, $, options),
+        html: transpileToHTML(element, $, options)
+    };
+}
+
+function transpileToHTML(element, $, options) {
     if (element.style.html() !== null) {
         element.style.html("\n" + shimShadowStyles(element.style.html(), element.name) + "\n");
     }
 
     if (element.script.html() !== null) {
-        options.name = element.name;
-        options.attributes = element.attributes;
-        options.extendee = element.extendee;
-
-        if (!element.template) {
-            options.automaticTemplating = false;
-        }
         var transpiled = transpileScript(element.script.html(), options);
         element.script.html("\n"+reindentScript(transpiled)+"\n");
     }
     
     return $.html();
+}
+
+function transpileToCSS(element, $, options) {
+    var css = [];
+
+    $('style').each(function(i, style) {
+        if ($(this).parent('element').length !== 0) {
+            css.push(shimShadowStyles($(this).html(), element.name));
+        } else {
+            css.push($(this).html());
+        }
+    });
+
+    return css.join('\n');
+}
+
+function transpileToJS(element, $, options) {
+    var transpiled = transpileScript(element.script.html(), options, true);
+    return reindentScript(transpiled);
 }
 
 function reindentScript(script) {
