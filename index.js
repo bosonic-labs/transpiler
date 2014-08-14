@@ -3,9 +3,7 @@ var fs = require('fs'),
     esprima = require('esprima-fb'),
     escodegen = require('escodegen'),
     shimShadowStyles = require('./lib/css').shimShadowStyles,
-    shimReactStyles = require('./lib/css').shimReactStyles,
-    transpileScript = require('./lib/transpiler').transpileScript,
-    transpileToReactComponent = require('./lib/react-transpiler').transpileToReactComponent;
+    transpileScript = require('./lib/transpiler').transpileScript;
 
 function getElementFacets($) {
     var mainScript,
@@ -46,33 +44,6 @@ function getElementFacets($) {
             stylesheets: cssDeps,
             scripts: scriptDeps
         }
-    };
-}
-
-function transpileToReact(htmlString, options) {
-    var css = [],
-        $ = cheerio.load(htmlString, {
-    xmlMode: true
-}),
-        element = getElementFacets($);
-
-    options = options || {};
-    options.name = element.name;
-    options.attributes = element.attributes;
-    options.extendee = element.extendee;
-    options.template = element.template;
-
-    $('style').each(function(i, style) {
-        if ($(this).parent('element').length !== 0) {
-            css.push(shimReactStyles($(this).html(), element.name));
-        } else {
-            css.push($(this).html());
-        }
-    });
-
-    return {
-        css: css.join('\n'),
-        jsx: transpileToReactComponent(element.script.html(), options)
     };
 }
 
@@ -137,7 +108,6 @@ function reindentScript(script) {
 
 exports = module.exports = {
     transpile: transpile,
-    transpileToReact: transpileToReact,
     reindentScript: reindentScript,
     transpileScript: transpileScript,
     shimShadowStyles: shimShadowStyles
