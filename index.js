@@ -48,7 +48,7 @@ function getElementFacets($) {
 }
 
 function transpile(htmlString, options) {
-    var $ = cheerio.load(htmlString),
+    var $ = cheerio.load(htmlString, { xmlMode: true }),
         element = getElementFacets($);
 
     options = options || {};
