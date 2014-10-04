@@ -1,13 +1,8 @@
 <element name="super-tick-tock-clock" extends="tick-tock-clock">
-  <style>
-    :host {
-      border: 1px solid #000;
-    }
-  </style>
   <script>
     ({
       tick: function () {
-        TickTockClock.prototype.tick.call(this);
+        super.tick();
         var now = new Date();
         this.style.borderColor = now.getSeconds() % 2 ? '#ccc' : 'red';
       }

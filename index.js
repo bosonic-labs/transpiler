@@ -3,79 +3,121 @@ var fs = require('fs'),
     esprima = require('esprima-fb'),
     escodegen = require('escodegen'),
     shimShadowStyles = require('./lib/css').shimShadowStyles,
-    transpileScript = require('./lib/transpiler').transpileScript;
+    transpileTemplate = require('./lib/templates').transpileTemplate,
+    jstransform = require('jstransform'),
+    visitRegisterExpression = require('./lib/visitors/register_expressions'),
+    visitSuperCallExpression = require('./lib/visitors/super_call_expressions');
 
-function getElementFacets($) {
-    var mainScript,
-        scriptDeps = [],
-        cssDeps = [],
-        element = $('element'),
-        template = $('template').html(),
-        style = $('element style'),
-        scripts = $('script'),
-        stylesheets = $('link[rel=stylesheet]'),
-        elementName = element.attr('name'),
-        attributes = element.attr('attributes') ? element.attr('attributes').split(' ') : null,
-        extendee = element.attr('extends');
-
-    scripts.each(function(i, script) {
-        if ($(this).attr('src')) {
-            scriptDeps.push($(this).attr('src'));
-        } else {
+function getMainScript($) {
+    var mainScript;
+    $('script').each(function(i, script) {
+        if (!$(this).attr('src')) {
             if (mainScript !== undefined) {
                 throw new Error('Only one <script> is permitted in a Web Component declaration');
             }
             mainScript = $(this);
         }
     });
+    return mainScript;
+}
 
-    stylesheets.each(function(i, link) {
+function getDependencies($) {
+    var scriptDeps = [],
+        cssDeps = [];
+    $('script').each(function(i, script) {
+        if ($(this).attr('src')) {
+            scriptDeps.push($(this).attr('src'));
+        }
+    });
+    $('link[rel=stylesheet]').each(function(i, link) {
         cssDeps.push($(this).attr('href'));
     });
-    
     return {
-        name: elementName,
-        attributes: attributes,
-        extendee: extendee,
-        script: mainScript,
-        style: style,
-        template: template,
-        dependencies: {
-            stylesheets: cssDeps,
-            scripts: scriptDeps
-        }
+        stylesheets: cssDeps,
+        scripts: scriptDeps
     };
 }
 
-function transpile(htmlString, options) {
-    var $ = cheerio.load(htmlString, { xmlMode: true }),
-        element = getElementFacets($);
+function getElementFacets($) {
+    var element = $('element');
+    return {
+        name: element.attr('name'),
+        attributes: element.attr('attributes') ? element.attr('attributes').split(' ') : null,
+        extendee: element.attr('extends')
+    };
+}
 
+function getDefaultOptions(element, options) {
     options = options || {};
     options.name = element.name;
-    options.attributes = element.attributes;
+    //options.attributes = element.attributes;
     options.extendee = element.extendee;
-    options.template = element.template;
+    return options;
+}
 
-    if (!element.template) {
-        options.automaticTemplating = false;
+function includeTemplatingCode(options) {
+    options.inject = {
+        createdCallback: [
+            'this.createShadowRoot();',
+            'this.shadowRoot.appendChild(template.content.cloneNode(true));'
+        ]
+    };
+    return options;
+}
+
+function transpileForBosonicPlatform(htmlString, options) {
+    var $ = cheerio.load(htmlString, { xmlMode: true }),
+        element = getElementFacets($),
+        options = getDefaultOptions(element, options);
+
+    var styles = transpileToCSS(element, $, options);
+
+    var template = $('template');
+    if (template.length !== 0) {
+        options.prepend = options.prepend || [];
+        options.prepend.push('var template = ' + transpileTemplate(template.html()));
+        
+        includeTemplatingCode(options);
+    }
+
+    var mainScript = getMainScript($);
+
+    if (mainScript && mainScript.html() !== null) {
+        var transpiled = jstransform.transform(
+            [visitRegisterExpression, visitSuperCallExpression], 
+            mainScript.html(), 
+            options
+        );
     }
 
     return {
-        js: transpileToJS(element, $, options),
-        css: transpileToCSS(element, $, options),
-        html: transpileToHTML(element, $, options)
+        js: transpiled ? reindentScript("(function () {" + transpiled.code + "}());") : '',
+        css: styles
     };
 }
 
-function transpileToHTML(element, $, options) {
-    if (element.style.html() !== null) {
-        element.style.html("\n" + shimShadowStyles(element.style.html(), element.name) + "\n");
+function transpileToNativeElement(htmlString, options) {
+    var $ = cheerio.load(htmlString, { xmlMode: true }),
+        element = getElementFacets($),
+        options = getDefaultOptions(element, options);
+
+    var template = $('template');
+    if (template.length !== 0) {
+        options.prepend = options.prepend || [];
+        options.prepend.push('var template = document._currentScript.parentNode.querySelector(\'template\');');
+        
+        includeTemplatingCode(options);
     }
 
-    if (element.script.html() !== null) {
-        var transpiled = transpileScript(element.script.html(), options);
-        element.script.html("\n"+reindentScript(transpiled)+"\n");
+    var mainScript = getMainScript($);
+
+    if (mainScript && mainScript.html() !== null) {
+        var transpiled = jstransform.transform(
+            [visitRegisterExpression, visitSuperCallExpression], 
+            mainScript.html(), 
+            options
+        );
+        mainScript.html("\n"+reindentScript("(function () {" + transpiled.code + "}());")+"\n");
     }
     
     return $.html();
@@ -85,19 +127,15 @@ function transpileToCSS(element, $, options) {
     var css = [];
 
     $('style').each(function(i, style) {
-        if ($(this).parent('element').length !== 0) {
+        if ($(this).parent('template').length !== 0) {
             css.push(shimShadowStyles($(this).html(), element.name));
         } else {
             css.push($(this).html());
         }
+        $(this).remove();
     });
 
     return css.join('\n');
-}
-
-function transpileToJS(element, $, options) {
-    var transpiled = transpileScript(element.script.html(), options, true);
-    return reindentScript(transpiled);
 }
 
 function reindentScript(script) {
@@ -107,8 +145,8 @@ function reindentScript(script) {
 }
 
 exports = module.exports = {
-    transpile: transpile,
+    transpileToNativeElement: transpileToNativeElement,
+    transpileForBosonicPlatform: transpileForBosonicPlatform,
     reindentScript: reindentScript,
-    transpileScript: transpileScript,
     shimShadowStyles: shimShadowStyles
 }

@@ -1,5 +1,3 @@
-<element name="super-tick-tock-clock" extends="tick-tock-clock">
-  <script>
 (function () {
     window.SuperTickTockClock = document.registerElement('super-tick-tock-clock', {
         prototype: Object.create(TickTockClock.prototype, {
@@ -14,5 +12,3 @@
         })
     });
 }());
-</script>
-</element>

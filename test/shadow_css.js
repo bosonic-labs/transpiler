@@ -10,7 +10,7 @@ describe('Shadow CSS shiming', function() {
             [':host(.cssClass)', 'b-dummy.cssClass'],
             [':ancestor(.cssClass)', '.cssClass b-dummy'],
             [':host-context(.cssClass)', '.cssClass b-dummy'],
-            ['p', 'b-dummy p'],
+            ['p', 'b-dummy p, b-dummy::shadow p'],
             ['b-dummy', 'b-dummy'],
             ['b-dummy p', 'b-dummy p'],
             ['::content p', 'b-dummy p']

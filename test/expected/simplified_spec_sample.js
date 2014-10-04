@@ -1,15 +1,3 @@
-<element name="tick-tock-clock">
-  <template>
-    <style>
-      :host {
-        border: 1px solid #ccc;
-      }
-    </style>
-    <span id="hh"/>
-    <span id="sep">:</span>
-    <span id="mm"/>
-  </template>
-  <script>
 (function () {
     function start() {
         this.tick();
@@ -21,7 +9,20 @@
     function fmt(n) {
         return (n < 10 ? '0' : '') + n;
     }
-    var template = document._currentScript.parentNode.querySelector('template');
+    var template = function () {
+            var df0 = document.createDocumentFragment();
+            var el0 = document.createElement('span');
+            el0.setAttribute('id', 'hh');
+            df0.appendChild(el0);
+            var el0 = document.createElement('span');
+            el0.setAttribute('id', 'sep');
+            el0.appendChild(document.createTextNode(':'));
+            df0.appendChild(el0);
+            var el0 = document.createElement('span');
+            el0.setAttribute('id', 'mm');
+            df0.appendChild(el0);
+            return { content: df0 };
+        }();
     window.TickTockClock = document.registerElement('tick-tock-clock', {
         prototype: Object.create(HTMLElement.prototype, {
             createdCallback: {
@@ -54,5 +55,3 @@
         })
     });
 }());
-</script>
-</element>
