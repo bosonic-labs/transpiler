@@ -21,7 +21,7 @@
     "escodegen": "~1.2.0",
     "css": "^1.6.0",
     "jstransform": "^4.0.1",
-    "esprima-fb": "^3001.1.0-dev-harmony-fb",
+    "esprima-fb": "^6001.1001.0-dev-harmony-fb",
     "react": "^0.11.1",
     "react-tools": "^0.11.1"
   },
