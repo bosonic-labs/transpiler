@@ -108,6 +108,35 @@ describe('Register expressions visitor', function() {
         expect(transformed.code).to.equal(expected);
     });
 
+    it('should expand two getters', function() {
+        var code = [
+            '({',
+            '  get height() {',
+            '    return this.style.height;',
+            '  },',
+            '  get width() {',
+            '    return this.style.width;',
+            '  }',
+            '})'
+        ].join('\n'),
+            expected = [
+            'window.TickTockClock = document.registerElement(\'tick-tock-clock\', { prototype : Object.create(HTMLElement.prototype, {',
+            '  height: { enumerable: true, get: function() {',
+            '    return this.style.height;',
+            '  } },',
+            '  width: { enumerable: true, get: function() {',
+            '    return this.style.width;',
+            '  } }',
+            '})});'
+        ].join('\n'),
+            transformed = jstransform.transform(
+                [visitRegisterExpression], code, {
+                    name: 'tick-tock-clock'
+                }
+            );
+        expect(transformed.code).to.equal(expected);
+    });
+
     it('should expand a single setter', function() {
         var code = [
             '({',
