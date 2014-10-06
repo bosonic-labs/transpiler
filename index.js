@@ -59,7 +59,7 @@ function includeTemplatingCode(options) {
     options.inject = {
         createdCallback: [
             'this.createShadowRoot();',
-            'this.shadowRoot.appendChild(template.content.cloneNode(true));'
+            'this.shadowRoot.appendChild(document.importNode(template.content, true));'
         ]
     };
     return options;
