@@ -225,6 +225,9 @@ describe('Register expressions visitor', function() {
             'window.TickTockClock = document.registerElement(\'tick-tock-clock\', { prototype : Object.create(HTMLElement.prototype, {',
             '  createdCallback: { enumerable: true, value: function() {',
             '    console.log("created");',
+            '  } },',
+            '  attributeChangedCallback: { enumerable: true, value: function(name, oldValue, newValue) {',
+            '    console.log("changed");',
             '  } }',
             '})});'
         ].join('\n'),
@@ -232,7 +235,11 @@ describe('Register expressions visitor', function() {
                 [visitRegisterExpression], code, {
                     name: 'tick-tock-clock',
                     inject: {
-                        createdCallback: 'console.log("created");'
+                        createdCallback: 'console.log("created");',
+                        attributeChangedCallback: {
+                            args: ['name', 'oldValue', 'newValue'],
+                            body: 'console.log("changed");'
+                        }
                     }
                 }
             );
@@ -244,6 +251,9 @@ describe('Register expressions visitor', function() {
             'Bosonic.register({',
             '  createdCallback: function() {',
             '    console.log("created");',
+            '  },',
+            '  attributeChangedCallback: function(name, old, nu) {',
+            '    console.log("attribute changed");',
             '  }',
             '})'
         ].join('\n'),
@@ -252,6 +262,10 @@ describe('Register expressions visitor', function() {
             '  createdCallback: { enumerable: true, value: function() {',
             '    this.createShadowRoot();',
             '    console.log("created");',
+            '  } },',
+            '  attributeChangedCallback: { enumerable: true, value: function(name, old, nu) {',
+            '    console.log(name + " changed from " + old + " to " + nu);',
+            '    console.log("attribute changed");',
             '  } }',
             '})});'
         ].join('\n'),
@@ -259,7 +273,11 @@ describe('Register expressions visitor', function() {
                 [visitRegisterExpression], code, {
                     name: 'tick-tock-clock',
                     inject: {
-                        createdCallback: 'this.createShadowRoot();'
+                        createdCallback: 'this.createShadowRoot();',
+                        attributeChangedCallback: {
+                            args: ['name', 'oldValue', 'newValue'],
+                            body: 'console.log(name + " changed from " + oldValue + " to " + newValue);'
+                        }
                     }
                 }
             );

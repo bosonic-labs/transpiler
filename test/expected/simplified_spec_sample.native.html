@@ -1,11 +1,10 @@
 <element name="tick-tock-clock">
-<style>
-tick-tock-clock {
-  border: 1px solid #ccc;
-}
-</style>
   <template>
-    
+    <style>
+      :host {
+        border: 1px solid #ccc;
+      }
+    </style>
     <span id="hh"/>
     <span id="sep">:</span>
     <span id="mm"/>
@@ -22,7 +21,7 @@ tick-tock-clock {
     function fmt(n) {
         return (n < 10 ? '0' : '') + n;
     }
-    var template = document._currentScript.parentNode.querySelector('template');
+    var template = document.currentScript.parentNode.querySelector('template');
     window.TickTockClock = document.registerElement('tick-tock-clock', {
         prototype: Object.create(HTMLElement.prototype, {
             createdCallback: {

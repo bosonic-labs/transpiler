@@ -2,7 +2,7 @@ var expect = require('chai').expect,
     css = require('../lib/css');
 
 describe('Shadow CSS shiming', function() {
-    it('should rewrite selectors', function() {
+    it('should rewrite selectors that contain shadow DOM pseudo selectors', function() {
         var tests = [
             [':host', 'b-dummy'],
             [':host:hover', 'b-dummy:hover'],
@@ -10,10 +10,18 @@ describe('Shadow CSS shiming', function() {
             [':host(.cssClass)', 'b-dummy.cssClass'],
             [':ancestor(.cssClass)', '.cssClass b-dummy'],
             [':host-context(.cssClass)', '.cssClass b-dummy'],
-            ['p', 'b-dummy p, b-dummy::shadow p'],
+            ['::content p', 'b-dummy p']
+        ];
+        tests.forEach(function(rule) {
+            expect(css.shimShadowSelector(rule[0], 'b-dummy')).to.equal(rule[1]);
+        });
+    });
+
+    it('should not modify some selectors', function() {
+        var tests = [
+            ['p', 'p'],
             ['b-dummy', 'b-dummy'],
             ['b-dummy p', 'b-dummy p'],
-            ['::content p', 'b-dummy p']
         ];
         tests.forEach(function(rule) {
             expect(css.shimShadowSelector(rule[0], 'b-dummy')).to.equal(rule[1]);
@@ -30,6 +38,9 @@ describe('Shadow CSS shiming', function() {
             '}',
             ':host(.active) {',
             '  color: red;',
+            '}',
+            'p {',
+            '  color: black;',
             '}'
         ].join('\n'),
             shimed = [
@@ -41,6 +52,12 @@ describe('Shadow CSS shiming', function() {
             '}\n',
             'b-dummy.active {',
             '  color: red;',
+            '}\n',
+            'b-dummy p {',
+            '  color: black;',
+            '}\n',
+            'b-dummy::shadow p {',
+            '  color: black;',
             '}'
         ].join('\n');
 

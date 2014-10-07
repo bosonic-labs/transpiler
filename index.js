@@ -4,6 +4,7 @@ var fs = require('fs'),
     escodegen = require('escodegen'),
     shimShadowStyles = require('./lib/css').shimShadowStyles,
     transpileTemplate = require('./lib/templates').transpileTemplate,
+    tools = require('./lib/tools'),
     jstransform = require('jstransform'),
     visitRegisterExpression = require('./lib/visitors/register_expressions'),
     visitSuperCallExpression = require('./lib/visitors/super_call_expressions');
@@ -50,16 +51,28 @@ function getElementFacets($) {
 function getDefaultOptions(element, options) {
     options = options || {};
     options.name = element.name;
-    //options.attributes = element.attributes;
+    options.attributes = element.attributes;
     options.extendee = element.extendee;
     return options;
 }
 
 function includeTemplatingCode(options) {
-    options.inject = {
-        createdCallback: [
-            'this.createShadowRoot();',
-            'this.shadowRoot.appendChild(document.importNode(template.content, true));'
+    options.inject = options.inject || {};
+    options.inject.createdCallback = [
+        'this.createShadowRoot();',
+        'this.shadowRoot.appendChild(document.importNode(template.content, true));'
+    ]
+    return options;
+}
+
+function includeAttributeChangedCode(options, attributes) {
+    options.inject = options.inject || {};
+    options.inject.attributeChangedCallback = {
+        args: ['name', 'oldValue', 'newValue'],
+        body: [
+            'if ([' + tools.stringifyArray(attributes) + '].indexOf(name) !== -1 && this[name + \'Changed\']) {',
+            '  this[name + \'Changed\'].call(this, oldValue, newValue);',
+            '}'
         ]
     };
     return options;
@@ -80,6 +93,10 @@ function transpileForBosonicPlatform(htmlString, options) {
         includeTemplatingCode(options);
     }
 
+    if (element.attributes) {
+        includeAttributeChangedCode(options, element.attributes);
+    }
+
     var mainScript = getMainScript($);
 
     if (mainScript && mainScript.html() !== null) {
@@ -96,7 +113,7 @@ function transpileForBosonicPlatform(htmlString, options) {
     };
 }
 
-function transpileToNativeElement(htmlString, options) {
+function transpileForPolymerPlatform(htmlString, options) {
     var $ = cheerio.load(htmlString, { xmlMode: true }),
         element = getElementFacets($),
         options = getDefaultOptions(element, options);
@@ -107,6 +124,52 @@ function transpileToNativeElement(htmlString, options) {
         options.prepend.push('var template = document._currentScript.parentNode.querySelector(\'template\');');
         
         includeTemplatingCode(options);
+    }
+
+    if (element.attributes) {
+        includeAttributeChangedCode(options, element.attributes);
+    }
+
+    var mainScript = getMainScript($);
+
+    if (mainScript && mainScript.html() !== null) {
+        var transpiled = jstransform.transform(
+            [visitRegisterExpression, visitSuperCallExpression], 
+            mainScript.html(), 
+            options
+        );
+        mainScript.html("\n"+reindentScript("(function () {" + transpiled.code + "}());")+"\n");
+    }
+
+    $('style').each(function(i, style) {
+        if ($(this).parent('template').length !== 0) {
+            $(this).closest('element').prepend(
+                '\n<style>\n' + 
+                shimShadowStyles($(this).html(), element.name) + 
+                '\n</style>'
+            );
+            $(this).remove();
+        }
+    });
+    
+    return $.html();
+}
+
+function transpileToNativeElement(htmlString, options) {
+    var $ = cheerio.load(htmlString, { xmlMode: true }),
+        element = getElementFacets($),
+        options = getDefaultOptions(element, options);
+
+    var template = $('template');
+    if (template.length !== 0) {
+        options.prepend = options.prepend || [];
+        options.prepend.push('var template = document.currentScript.parentNode.querySelector(\'template\');');
+        
+        includeTemplatingCode(options);
+    }
+
+    if (element.attributes) {
+        includeAttributeChangedCode(options, element.attributes);
     }
 
     var mainScript = getMainScript($);
@@ -147,6 +210,7 @@ function reindentScript(script) {
 exports = module.exports = {
     transpileToNativeElement: transpileToNativeElement,
     transpileForBosonicPlatform: transpileForBosonicPlatform,
+    transpileForPolymerPlatform: transpileForPolymerPlatform,
     reindentScript: reindentScript,
     shimShadowStyles: shimShadowStyles
 }

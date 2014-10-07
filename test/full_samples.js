@@ -6,8 +6,15 @@ describe('Simplified spec sample', function() {
     var fixture = fs.readFileSync(__dirname + '/fixtures/simplified_spec_sample.html', 'utf8');
     
     it('should transpile into a native HTML element', function() {
-        var expected = fs.readFileSync(__dirname + '/expected/simplified_spec_sample.html', 'utf8'),
+        var expected = fs.readFileSync(__dirname + '/expected/simplified_spec_sample.native.html', 'utf8'),
             transpiled = transpiler.transpileToNativeElement(fixture);
+
+        expect(transpiled).to.equal(expected);
+    });
+
+    it('should transpile into an element for the Polymer platform', function() {
+        var expected = fs.readFileSync(__dirname + '/expected/simplified_spec_sample.html', 'utf8'),
+            transpiled = transpiler.transpileForPolymerPlatform(fixture);
 
         expect(transpiled).to.equal(expected);
     });
