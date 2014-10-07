@@ -29,7 +29,7 @@
                 enumerable: true,
                 value: function () {
                     this.createShadowRoot();
-                    this.shadowRoot.appendChild(template.content.cloneNode(true));
+                    this.shadowRoot.appendChild(document.importNode(template.content, true));
                     if (this.parentElement) {
                         start.call(this);
                     }
