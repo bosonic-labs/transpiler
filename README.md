@@ -1,23 +1,3 @@
-# Bosonic transpiler
+## `bosonic-transpiler` has been deprecated
 
-> A node.js library that transpiles to-the-spec Web Components into polyfilled JavaScript
-
-## Getting started
-
-If you use Grunt, you may want to use [grunt-bosonic](https://github.com/bosonic/grunt-bosonic) instead.
-
-## Development
-
-### Contributing
-In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality.
-
-### Running tests
-
-```shell
-npm test
-```
-
-### Release History
-_(Nothing yet)_
-
-
+**Use bosonic instead.**

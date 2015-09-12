@@ -1,7 +1,7 @@
 {
   "name": "bosonic-transpiler",
-  "version": "0.5.0",
-  "description": "A node.js library that transpiles to-the-spec Web Components into polyfilled JavaScript",
+  "version": "0.5.1",
+  "description": "bosonic-transpiler has been deprecated. Use bosonic instead.",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha --reporter list"
